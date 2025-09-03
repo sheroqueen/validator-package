@@ -1,0 +1,44 @@
+stages:
+  - test
+  - publish
+  - trigger-downstream
+
+variables:
+  COMPOSER_HOME: "$CI_PROJECT_DIR/composer_home"
+  GITLAB_TOKEN: "${CI_JOB_TOKEN}"
+
+test_library:
+  stage: test
+  image: php:7.4-cli
+  script:
+    - apt-get update && apt-get install -y unzip git curl
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    - composer install
+    - ./vendor/bin/phpunit --bootstrap vendor/autoload.php tests
+  tags:
+    - docker
+
+publish_library:
+  stage: publish
+  only:
+    - tags
+  image: php:7.4-cli
+  before_script:
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    - composer config --global --auth gitlab-token.gitlab.yourdomain.com $GITLAB_TOKEN
+  script:
+    - composer validate
+    - composer publish --repository-url https://gitlab.yourdomain.com/api/v4/group/YOUR-GROUP/-/packages/composer packages.json
+  tags:
+    - docker
+
+trigger_downstream:
+  stage: trigger-downstream
+  only:
+    - tags
+  script:
+    - curl -X POST -F token=SYSTEM1_TRIGGER_TOKEN -F ref=main https://gitlab.yourdomain.com/group/system1/-/trigger/pipeline
+    - curl -X POST -F token=SYSTEM2_TRIGGER_TOKEN -F ref=main https://gitlab.yourdomain.com/group/system2/-/trigger/pipeline
+    - curl -X POST -F token=SYSTEM3_TRIGGER_TOKEN -F ref=main https://gitlab.yourdomain.com/group/system3/-/trigger/pipeline
+  tags:
+    - docker
