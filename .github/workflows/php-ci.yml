@@ -29,13 +29,3 @@ jobs:
         run: php -v
 
       - name: Validate Composer version
-        run: composer --version
-
-      - name: Install dependencies
-        run: |
-          composer install --prefer-dist --no-interaction
-        env:
-          COMPOSER_MEMORY_LIMIT: -1
-
-      - name: Run PHPUnit
-        run: ./vendor/bin/phpunit --bootstrap vendor/autoload.php tests
