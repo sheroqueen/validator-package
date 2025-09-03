@@ -60,14 +60,19 @@ jobs:
       - name: Validate composer.json
         run: composer validate
 
+      - name: Set Tag Name
+        id: tag
+        run: echo "TAG_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Check files before packaging
+        run: ls -l src tests composer.json README.md
+
       - name: Package Library
-        run: |
-          zip -r account-validator-${GITHUB_REF_NAME}.zip src tests composer.json README.md
+        run: zip -r account-validator-${{ env.TAG_NAME }}.zip src tests composer.json README.md
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: account-validator-${GITHUB_REF_NAME}
-          path: account-validator-${GITHUB_REF_NAME}.zip
+          name: account-validator-${{ env.TAG_NAME }}
+          path: account-validator-${{ env.TAG_NAME }}.zip
           retention-days: 7
-
