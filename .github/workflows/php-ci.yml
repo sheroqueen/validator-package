@@ -65,7 +65,9 @@ jobs:
           zip -r account-validator-${GITHUB_REF_NAME}.zip src tests composer.json README.md
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: account-validator-${GITHUB_REF_NAME}
           path: account-validator-${GITHUB_REF_NAME}.zip
+          retention-days: 7
+
