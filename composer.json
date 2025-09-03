@@ -1,5 +1,5 @@
 {
-  "name": "your-vendor/account-validator",
+  "name": "sheroqueen/account-validator",
   "description": "Account validation library",
   "type": "library",
   "require": {
